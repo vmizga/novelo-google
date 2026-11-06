@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Novelo</title>
+<body style="font-family:system-ui,sans-serif;padding:40px 20px;text-align:center;color:#444">
+<p id="msg">Voltando para o Novelo…</p>
+<script>
+// Ponte do login do Google para o Novelo: recebe o retorno do Google e repassa só
+// code/state/error para o Novelo depois do "#", sem os links que o firewall da hospedagem bloqueia.
+(function () {
+  var q = new URLSearchParams(location.search.slice(1) || location.hash.slice(1));
+  var st = q.get('state') || '', alvo = '';
+  try {
+    var b = st.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    while (b.length % 4) b += '=';
+    alvo = atob(b);
+  } catch (e) {}
+  if (!/^https?:\/\/[a-z0-9.-]+(:\d+)?\/([^?#]*\/)?api\/index\.php\?r=google\/retorno$/i.test(alvo)) {
+    document.getElementById('msg').textContent = 'Endereço de retorno inválido. Abra o Novelo e tente conectar de novo.';
+    return;
+  }
+  var f = new URLSearchParams();
+  ['code', 'state', 'error'].forEach(function (k) { if (q.get(k)) f.set(k, q.get(k)); });
+  location.replace(alvo + '#' + f.toString());
+})();
+</script>
+</html>
